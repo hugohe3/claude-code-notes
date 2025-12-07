@@ -77,7 +77,7 @@ claude
 
 **记忆层级结构：**
 
-```
+```text
 ~/.claude/CLAUDE.md          # 用户级记忆（全局偏好）
 ./CLAUDE.md                   # 项目级记忆（团队共享）
 ./memory/spec/CLAUDE.md       # 自定义模块化记忆
@@ -155,10 +155,13 @@ claude
 **使用 MCP 工具：**
 
 ::: tip 💡 自动使用（通过记忆规则）
+
 在 `CLAUDE.md` 中添加：
-```markdown
+
+```text
 每次我询问关于 LangGraph 的问题时，自动使用 context7 MCP
 ```
+
 :::
 
 手动调用：`"使用 context7 查询 Next.js 14 的最新路由功能"`
@@ -167,7 +170,7 @@ claude
 
 **文件位置：** `.claude/commands/commit-code.md`
 
-```markdown
+```yaml
 ---
 name: commit-code
 description: 生成智能 Git 提交信息
@@ -183,9 +186,10 @@ description: 生成智能 Git 提交信息
 ```
 
 ::: details 📎 高级命令示例（带安全控制）
+
 **文件位置：** `.claude/commands/smart-commit.md`
 
-```markdown
+```yaml
 ---
 name: smart-commit
 description: 带 RAG 的智能提交
@@ -204,7 +208,8 @@ allowed-tools:
 5. 运行 `!git add .` 和 `!git commit -m "[生成的信息]"`
 ```
 
-> 💡 **说明：** `allowed-tools` 实现最小权限原则
+💡 **说明：** `allowed-tools` 实现最小权限原则
+
 :::
 
 ### 3.4 输出样式自定义
@@ -267,7 +272,7 @@ allowed-tools:
 
 **子代理配置文件示例：**
 
-```markdown
+```yaml
 ---
 name: code-comedy-carl
 description: 当用户说 "funny review" 时，生成幽默的代码审查
@@ -384,16 +389,18 @@ Agent Skills 是**程序化知识容器**——包含指令和脚本的文件夹
 
 **创建自定义 Skill：**
 
-目录结构：
-```
+**目录结构：**
+
+```text
 .claude/skills/
 └── git-pushing/
     ├── SKILL.md           # Skill 定义文件
     └── smart_commit.sh    # 辅助脚本
 ```
 
-SKILL.md 示例：
-```markdown
+**SKILL.md 示例：**
+
+```yaml
 ---
 name: Git Smart Push
 description: Automatically generate commit messages and push to remote
@@ -437,7 +444,7 @@ Claude Code Desktop 提供两种截然不同的运行模式：
 
 **Local Worktree 模式：**
 
-```
+```text
 你的项目目录 (/project)
     ├── .git/
     ├── src/
@@ -454,7 +461,7 @@ worktree 目录 (/zealous-jemison)
 
 **Default (Cloud) 模式：**
 
-```
+```text
 1. 授权 Anthropic 访问 GitHub
 2. 云代理克隆仓库到容器
 3. 执行代码工作
@@ -540,7 +547,7 @@ git push origin vigilant-feistel
 
 **步骤 3: 让 Claude 执行合并**
 
-```
+```text
 将以下分支合并到 project/hookhub：
 - zealous-jemison (动画功能)
 - vigilant-feistel (数据库更新)
@@ -570,7 +577,7 @@ git push origin project/hookhub  # 推送
 
 **移动端工作流：**
 
-```
+```text
 📱 移动端发起任务
     ↓ (云容器执行)
     ↓ 克隆仓库 → 检出分支 → 执行任务 → 提交更改
@@ -620,7 +627,7 @@ cd /path/to/your/repo
 
 安装会自动创建 PR，添加以下文件：
 
-```
+```text
 .github/workflows/claude-issue-comment.yml
 .github/workflows/claude-pr-review.yml
 ```
@@ -633,6 +640,7 @@ cd /path/to/your/repo
 | PR 评论 | 在 Pull Request 中评论 `@claude 请审查这个 PR` |
 
 ::: tip 💡 最佳实践：提供上下文
+
 在仓库中添加 `CLAUDE.md`，Claude 在执行 GitHub Actions 时会读取它，理解项目架构和约束。
 
 ```bash
@@ -645,6 +653,7 @@ git add CLAUDE.md
 git commit -m "docs: 添加 Claude AI 项目上下文"
 git push
 ```
+
 :::
 
 ### 6.2 IDE 集成（Cursor）
@@ -689,6 +698,7 @@ git push
 ```
 
 ::: details 📎 高级用法：调用子代理
+
 ```json
 {
   "after_tool_use": {
@@ -696,6 +706,7 @@ git push
   }
 }
 ```
+
 :::
 
 ---
@@ -706,7 +717,7 @@ git push
 
 **分层记忆策略：**
 
-```
+```text
 ~/.claude/CLAUDE.md          # 个人偏好、代码风格
 ./CLAUDE.md                   # 项目架构、团队规范
 ./memory/spec/CLAUDE.md       # 功能规范
@@ -732,6 +743,7 @@ git push
 - **上下文冲突** — 矛盾信息导致困惑
 
 **解决方案：** 使用子代理隔离复杂任务、定期 `/compact` 或 `/clear`、精确定义记忆内容
+
 :::
 
 ### 7.2 安全性最佳实践
@@ -740,7 +752,7 @@ git push
 
 自定义命令：
 
-```markdown
+```yaml
 ---
 allowed-tools:
   - git status
@@ -751,7 +763,7 @@ allowed-tools:
 
 子代理：
 
-```markdown
+```yaml
 ---
 tools:
   - read_file
@@ -786,6 +798,7 @@ tools:
 ### 7.4 工作流程最佳实践
 
 ::: details 📎 典型的一天工作流
+
 **早晨（项目启动）：**
 
 ```bash
@@ -825,9 +838,11 @@ Shift+Tab  # 进入计划模式
 /compact  # 压缩对话历史
 "今天实现了 JWT 认证，使用 jose 库而非 jsonwebtoken #"  # 添加重要记忆
 ```
+
 :::
 
 ::: details 📎 团队协作流程
+
 **项目初始化（团队负责人）：**
 
 ```bash
@@ -862,6 +877,7 @@ cd <project>
 claude  # 自动加载团队配置
 "根据 @CLAUDE.md 实现用户注册功能"
 ```
+
 :::
 
 ### 7.5 故障排查
@@ -890,24 +906,6 @@ claude  # 自动加载团队配置
 | `/cost` | 查看成本 | 监控使用量时 |
 | `/output-style:new` | 创建输出样式 | 自定义交互方式时 |
 
-### 8.4 Git Worktrees 速查
-
-| 命令 | 用途 |
-|------|------|
-| `git worktree add ../dir branch` | 创建新 worktree |
-| `git worktree list` | 列出所有 worktrees |
-| `git worktree remove ../dir` | 删除 worktree |
-| `git worktree prune` | 清理引用 |
-
-### 8.5 Desktop 模式对比
-
-| 特性 | Local Worktree | Cloud (Default) |
-|------|----------------|-----------------|
-| 执行环境 | 本地机器 | Anthropic 服务器 |
-| MCP/Hooks | ✅ 可用 | ❌ 需另配置 |
-| 扩展性 | 受限本地资源 | 无限（预算允许） |
-| 结果交付 | 本地 Git 分支 | GitHub PR/提交 |
-
 ### 8.2 提示词模板
 
 | 场景 | 模板 |
@@ -926,6 +924,24 @@ claude  # 自动加载团队配置
 | `@目录路径` | 引用整个目录 |
 | `@memory/spec/CLAUDE.md` | 引用特定记忆文件 |
 | `#` | 快速添加记忆（在句尾） |
+
+### 8.4 Git Worktrees 速查
+
+| 命令 | 用途 |
+|------|------|
+| `git worktree add ../dir branch` | 创建新 worktree |
+| `git worktree list` | 列出所有 worktrees |
+| `git worktree remove ../dir` | 删除 worktree |
+| `git worktree prune` | 清理引用 |
+
+### 8.5 Desktop 模式对比
+
+| 特性 | Local Worktree | Cloud (Default) |
+|------|----------------|-----------------|
+| 执行环境 | 本地机器 | Anthropic 服务器 |
+| MCP/Hooks | ✅ 可用 | ❌ 需另配置 |
+| 扩展性 | 受限本地资源 | 无限（预算允许） |
+| 结果交付 | 本地 Git 分支 | GitHub PR/提交 |
 
 ---
 
