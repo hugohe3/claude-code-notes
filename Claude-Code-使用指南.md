@@ -14,7 +14,9 @@
 10. [Hooks 自动化](#hooks-自动化)
 11. [GitHub 集成](#github-集成)
 12. [高级工作流](#高级工作流)
-13. [最佳实践](#最佳实践)
+13. [Agent Skills（代理技能）](#agent-skills代理技能)
+14. [Claude Code Desktop（桌面版）](#claude-code-desktop桌面版)
+15. [最佳实践](#最佳实践)
 
 ---
 
@@ -840,6 +842,340 @@ claude
 
 ---
 
+## Agent Skills（代理技能）
+
+### 什么是 Agent Skills？
+
+Agent Skills 是**程序化知识容器**——本质上是包含指令和脚本的文件夹，用于教代理如何一致地执行特定任务。Skills 是 Claude Code 的五大 Agent 系统原语之一：
+
+```
+Agent 系统原语
+├── Memories（内存）        - 持久化上下文
+├── Slash Commands（斜杠命令）- 快速触发操作
+├── Skills（技能）          - 程序化知识
+├── Subagents（子代理）      - 隔离的专门助手
+└── MCP Servers（MCP服务器） - 外部资源连接
+```
+
+### Skills 的核心优势
+
+**渐进式加载（Progressive Disclosure）：**
+- 初始时只加载 Skill 的头部信息
+- 完整指令仅在代理决定使用该 Skill 时才加载
+- 极其高效的上下文利用（初始消耗极少 tokens）
+
+### 创建自定义 Skill（带辅助脚本）
+
+Skills 不仅可以包含 Markdown 定义文件，还可以包含辅助脚本。
+
+**目录结构：**
+```
+.claude/skills/
+└── git-pushing/
+    ├── SKILL.md           # Skill 定义文件
+    └── smart_commit.sh    # 辅助脚本
+```
+
+**SKILL.md 示例：**
+```markdown
+---
+name: Git Smart Push
+description: Automatically generate commit messages and push to remote
+---
+
+# Git Smart Push Skill
+
+This skill handles git operations with intelligent commit message generation.
+
+## Usage
+
+When pushing code, this skill will:
+1. Analyze staged changes
+2. Generate a descriptive commit message
+3. Commit and push to remote
+
+## Execution
+
+Run the helper script:
+!bash .claude/skills/git-pushing/smart_commit.sh
+```
+
+**smart_commit.sh 示例（海盗风格版）：**
+```bash
+#!/bin/bash
+
+# Get the staged diff
+DIFF=$(git diff --staged)
+
+# Use Claude CLI to generate a pirate-style commit message
+MESSAGE=$(claude --print "Generate a commit message in pirate speak for: $DIFF")
+
+# Commit with the generated message
+git commit -m "$MESSAGE"
+
+# Push to remote
+git push
+```
+
+### Skills vs MCP
+
+| 特性 | Skills | MCP |
+|------|--------|-----|
+| **本质** | 程序化知识容器 | 外部资源连接器 |
+| **上下文消耗** | 极低（渐进式加载） | 较高（需预先提供工具定义） |
+| **执行位置** | 本地，主代理线程内 | 服务器（本地或云端） |
+| **主要用途** | 教代理"如何做" | 连接外部资源 |
+| **启动开销** | 几乎为零 | 需要预配置工具定义 |
+
+**何时使用 Skills：**
+- 需要一致的方法论
+- 需要程序化指令
+- 上下文效率优先
+
+**何时使用 MCP：**
+- 需要连接外部 API
+- 需要访问数据库
+- 需要浏览器自动化
+
+### Skills vs Subagents
+
+| 特性 | Skills | Subagents |
+|------|--------|-----------|
+| **上下文环境** | 主代理上下文内 | 独立的全新上下文窗口 |
+| **系统提示** | 共享主代理的系统提示 | 可自定义独立系统提示 |
+| **适用任务** | 短期、方法论一致的任务 | 长周期、复杂的任务 |
+| **上下文隔离** | 无隔离 | 完全隔离 |
+| **灵活性** | 较低 | 较高 |
+
+**何时使用 Skills：**
+- 强制执行一致的方法论
+- 提供"自动专业知识"
+- 任务相对简单
+
+**何时使用 Subagents：**
+- 重度任务（会膨胀主上下文）
+- 需要动态更改系统提示
+- 长周期任务
+
+### Skills 的弹性设计
+
+Skills 具有一定的容错能力。例如，即使脚本路径不完全匹配指令中的目录结构，AI 代理也足够智能去定位脚本。
+
+---
+
+## Claude Code Desktop（桌面版）
+
+### 概述
+
+Claude Code Desktop 是 Claude 桌面应用的代码功能，提供了两种截然不同的运行模式，并支持后台代理运行。
+
+### 安装设置
+
+1. 在桌面应用中点击 "Code" 图标
+2. 安装运行时依赖
+3. 选择工作模式
+
+### 两种运行模式
+
+#### 模式 1：Local Worktree（本地工作树）
+
+**特点：**
+- 运行在本地机器上
+- 需要选择本地文件夹
+- 使用 Git Worktrees 创建独立目录
+
+**工作流程：**
+```
+本地项目目录
+    ├── .git/
+    ├── src/
+    └── ...
+
+    ↓ Claude Desktop 创建 Worktree
+
+worktree-directory/  (如: zealous-jemison/)
+    ├── src/
+    └── ... (独立分支)
+```
+
+**优势：**
+- 直接在本地硬件执行
+- 完全控制
+- 无网络依赖
+
+#### 模式 2：Default（云端代码）
+
+**特点：**
+- 由云图标标识
+- 运行在 Anthropic 基础设施上
+- 使用容器环境
+
+**GitHub 集成流程：**
+```
+1. 授权 Anthropic 访问 GitHub
+2. 云代理克隆你的仓库到容器
+3. 执行代码工作
+4. 推送提交或创建 PR
+5. 就像远程人类开发者一样工作
+```
+
+**优势：**
+- 无限扩展能力（预算允许的情况下）
+- 不依赖本地 CPU/RAM
+- 可同时运行多个代理
+
+### Git Worktrees 深入理解
+
+**工作原理：**
+```
+main 分支（你的工作目录）
+    │
+    ├── 继续你的日常开发
+    │
+worktree-1/ (vigilant-feistel 分支)
+    │
+    └── Claude 代理在这里实验
+    
+worktree-2/ (zealous-jemison 分支)
+    │
+    └── 另一个 Claude 代理工作
+```
+
+**核心价值：**
+- **隔离性**：代码更改在独立目录，主分支完全不受影响
+- **并行工作**：多个代理可同时处理不同分支
+- **干净的工作流**：无需 `git stash` 或多次克隆仓库
+- **灵活性**：结果好则合并，不好则删除 worktree
+
+**Worktree 是多代理并行工作的"协调成本"**
+
+### 协调并行代理 [实战演示]
+
+同时运行三个独立的开发工作流：
+
+**任务 A - 研究（Claude Chat / 云模型）**
+```
+在标准 Claude 聊天界面：
+"找出流行的 Claude Code hooks GitHub 仓库"
+
+↓ 获取结果
+
+用于更新项目的 hooks.json 数据库
+```
+
+**任务 B - 功能开发（本地 Worktree 代理）**
+```
+在本地 Claude Code 会话（Git Worktree 模式）：
+"为 UI 添加动画效果"
+
+↓ 代理更新代码
+
+直接在 localhost 看到动画效果
+```
+
+**任务 C - 云端功能开发（远程分支）**
+```
+在 Default（云端）模式：
+"更新远程项目的 hero 区域"
+
+↓ 云代理在远程分支工作
+
+推送更改到 GitHub
+```
+
+**协调流程：**
+```
+研究结果 ──────────────► 更新 hooks.json
+                              │
+本地动画更改 ──────────────► localhost 实时预览
+                              │
+云端 Hero 更改 ─────────────► 远程分支
+                              │
+                              ▼
+                    分散的更改需要合并
+                    （下一步：统一合并）
+```
+
+### 合并多代理工作
+
+**合并工作流：**
+
+1. **提交本地工作**
+```bash
+# 在各自的 worktree 分支提交
+# vigilant-feistel: 动画更改
+# zealous-jemison: 数据库更新
+```
+
+2. **推送到远程**
+```bash
+# 推送新分支到 GitHub
+# 此时 GitHub 上有三个新分支
+```
+
+3. **"懒人"合并**
+```
+截取分支列表截图
+告诉新的 Claude Code 实例：
+"将这些分支全部合并到 project/hookhub"
+```
+
+4. **处理冲突**
+```
+Claude 识别合并冲突（如 global.css）
+自动规划解决策略
+执行合并（需要你批准）
+```
+
+5. **验证**
+```bash
+# 合并前验证
+npm run dev
+
+# 在新端口对比
+# 原版: localhost:3000
+# 新版: localhost:3002
+```
+
+6. **最终推送**
+```bash
+# 满意后推送
+git push origin project/hookhub
+```
+
+### Claude Code Mobile（移动端）
+
+**特点：**
+- 通过 Claude iOS/Android 应用使用
+- 选择 "Code" 功能
+- 强制使用 Default（云容器）模式（手机无本地环境）
+
+**工作流程：**
+```
+1. 在移动端发起任务
+   "在 project/hookhub 分支实现 Anthropic 风格的 footer"
+
+2. 云代理执行
+   - 克隆仓库
+   - 检出分支
+   - 理解项目结构
+   - 创建 Footer.tsx
+   - 集成到 page.tsx
+   - 提交更改
+
+3. 桌面端接手
+   - 打开 PR 链接
+   - 验证更改
+   - 本地拉取测试
+```
+
+**注意事项：**
+- 默认云环境没有本地 MCP 或自定义 hooks
+- PR 可能默认指向错误的基础分支，需手动修正
+- 适合简单任务和紧急修复
+
+---
+
 ## 最佳实践
 
 ### 1. 上下文管理
@@ -1014,4 +1350,8 @@ Claude Code 不仅仅是一个 AI 编码助手，它是一个完整的开发环�
 - 持续学习和改进
 
 祝你编码愉快！🚀
+
+---
+
+*最后更新：2025-12-07*
 

@@ -11,6 +11,8 @@
 - 核心概念（Context Engineering）
 - 安装与配置
 - 所有功能详解
+- Agent Skills（代理技能）
+- Claude Code Desktop（桌面版与多代理协调）
 - 实用示例
 - 最佳实践
 - 常见问题
@@ -63,10 +65,21 @@
 2. 设置[Hooks](./Claude-Code-使用指南.md#hooks-自动化)
 3. 尝试[规划模式](./Claude-Code-使用指南.md#plan-mode规划模式)
 
-### 第五天：团队协作
+### 第五天：Agent Skills
+1. 理解[Skills vs MCP vs Subagents](./Claude-Code-使用指南.md#skills-vs-mcp)
+2. 创建[自定义 Skill](./Claude-Code-使用指南.md#创建自定义-skill带辅助脚本)
+3. 学习渐进式加载原理
+
+### 第六天：Desktop 与多代理
+1. 理解[两种运行模式](./Claude-Code-使用指南.md#两种运行模式)
+2. 学习[Git Worktrees](./Claude-Code-使用指南.md#git-worktrees-深入理解)
+3. 尝试[并行代理协调](./Claude-Code-使用指南.md#协调并行代理-实战演示)
+
+### 第七天：团队协作
 1. 配置[GitHub 集成](./Claude-Code-使用指南.md#github-集成)
 2. 设置团队共享的配置
 3. 创建项目规范文档
+4. 尝试[移动端](./Claude-Code-使用指南.md#claude-code-mobile移动端)开发流程
 
 ---
 
@@ -87,13 +100,15 @@
 Shift + Tab        # 进入规划模式
 ```
 
-### 核心概念（前 5）
+### 核心概念（前 7）
 
 1. **Context Engineering** - 给 AI 正确的上下文
 2. **内存系统** - 分层持久化知识
 3. **子代理** - 专门任务的专门助手
 4. **输出样式** - 自定义 AI 沟通方式
 5. **Hooks** - 自动化工作流
+6. **Agent Skills** - 程序化知识容器，渐进式加载
+7. **Desktop 多代理** - 本地/云端并行开发
 
 ---
 
@@ -275,6 +290,8 @@ React 19 的最新特性是什么？
 - [ ] 设置 GitHub 集成
 - [ ] 运行并行 Claude 实例
 - [ ] 实施规格驱动开发
+- [ ] 创建自定义 Agent Skills
+- [ ] 理解 Skills vs MCP vs Subagents 的权衡
 
 ### 专家 ✅
 - [ ] 为团队定制完整配置
@@ -282,6 +299,9 @@ React 19 的最新特性是什么？
 - [ ] 构建复杂的多代理工作流
 - [ ] 优化上下文工程策略
 - [ ] 贡献社区最佳实践
+- [ ] 使用 Desktop 协调本地/云端多代理
+- [ ] 掌握 Git Worktrees 并行开发
+- [ ] 移动端开发流程集成
 
 ---
 
@@ -360,8 +380,27 @@ claude
 
 ---
 
-*最后更新：2025-11-22*  
-*基于 Claude Code 2.0*
+## 🆕 最新更新
+
+### 2025-12-07 新增内容
+
+**Agent Skills（代理技能）：**
+- Skills 是程序化知识容器，教代理如何执行任务
+- 支持辅助脚本（如 bash 脚本）
+- 渐进式加载：初始仅加载头部，使用时才完整加载
+- Skills vs MCP vs Subagents 对比和选择指南
+
+**Claude Code Desktop：**
+- 两种运行模式：Local Worktree 和 Cloud (Default)
+- Git Worktrees 深入理解和并行开发
+- 多代理协调：研究 + 本地开发 + 云端开发
+- 合并多代理工作流程
+- Claude Code Mobile 移动端支持
+
+---
+
+*最后更新：2025-12-07*  
+*基于 Claude Code 2.0+*
 
 祝编码愉快！🎉
 
